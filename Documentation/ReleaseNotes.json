@@ -4384,7 +4384,7 @@
     },
     "smooth-appearance-previews": {
       "category": "fixed",
-      "message": "Dragging an Appearance setting, such as the window border, material, Space icon size or the tab and address field colors, now updates every window smoothly instead of slowing the whole app down."
+      "message": "Dragging an Appearance setting, such as the window border, material, Space icon size or the tab and address field colors, no longer slows the whole app down."
     }
   }
 }

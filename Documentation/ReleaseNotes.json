@@ -4597,6 +4597,10 @@
     "sidebar-reveal-yields-to-scroll": {
       "category": "internal",
       "message": "A sidebar reveal stops before its final scroll when the person starts scrolling the list while it moves."
+    },
+    "sidebar-reveal-yields-to-rename": {
+      "category": "internal",
+      "message": "A sidebar reveal stops before its final scroll when the person starts renaming or dragging in the list while it moves."
     }
   }
 }

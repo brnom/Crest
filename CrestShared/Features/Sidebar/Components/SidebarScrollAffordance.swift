@@ -78,6 +78,9 @@ struct SidebarScrollAffordance: ViewModifier {
                     }
                 }
             }
+            // A reveal's task outlives this copy of the modifier, so it reads
+            // the hold through the activity rather than these values.
+            .onChange(of: isDragging || holdsStill, initial: true) { _, held in activity.isHeldStill = held }
             .onChange(of: revealing, initial: true) { _, reveal in take(reveal) }
             .onDisappear { activity.reset() }
     }
@@ -96,7 +99,7 @@ struct SidebarScrollAffordance: ViewModifier {
             await Task.yield()
             guard let reveal = pendingReveal else { return }
             pendingReveal = nil
-            guard !isDragging, !holdsStill, !activity.isMovedByPerson else { return }
+            guard !activity.isHeldStill, !activity.isMovedByPerson else { return }
             let animation: Animation? = reduceMotion || !isShown ? nil : .easeInOut(duration: 0.22)
             activity.revealDidStart()
             // A lazy list has not made a row far from view, so the list first
@@ -106,8 +109,9 @@ struct SidebarScrollAffordance: ViewModifier {
                 try? await Task.sleep(for: .milliseconds(animation == nil ? 50 : 260))
                 // A newer reveal took over while the list moved.
                 guard latestRevealID == reveal.requestID else { return }
-                // The person took the list while it moved.
-                guard !activity.isMovedByPerson else { return }
+                // The person took the list, or began to rename or drag, while
+                // it moved.
+                guard !activity.isHeldStill, !activity.isMovedByPerson else { return }
             }
             withAnimation(animation) {
                 position.scrollTo(id: reveal.rowID)
@@ -148,6 +152,9 @@ private final class SidebarScrollActivity {
     var hasMoreBelow: Bool { contentHeight > metrics.visibleBottom + 1 }
     private(set) var metrics = SidebarScrollMetrics()
     private(set) var showsIndicator = false
+    /// Whether the person is renaming or dragging, which a reveal never
+    /// moves the list under.
+    @ObservationIgnored var isHeldStill = false
     @ObservationIgnored private var isScrolling = false
     @ObservationIgnored private var isPersonScrolling = false
     @ObservationIgnored private var idleTask: Task<Void, Never>?

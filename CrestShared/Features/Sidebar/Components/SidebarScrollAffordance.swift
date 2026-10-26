@@ -106,6 +106,8 @@ struct SidebarScrollAffordance: ViewModifier {
                 try? await Task.sleep(for: .milliseconds(animation == nil ? 50 : 260))
                 // A newer reveal took over while the list moved.
                 guard latestRevealID == reveal.requestID else { return }
+                // The person took the list while it moved.
+                guard !activity.isMovedByPerson else { return }
             }
             withAnimation(animation) {
                 position.scrollTo(id: reveal.rowID)
